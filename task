@@ -1,0 +1,7 @@
+1. Реализовать методы сервлета /usersServlet. Использовать html не обязательно.
+2. doGet получения данных о пользователе (любого или какой есть в мапе loginToProfile, sessionIdToProfile).
+Например, если мы хотим получить данные о каком-то пользователе зная его логин.
+3. doPost должен позволить нам зарегистрировать нового пользователя в AccountService. С полями (login, pass, email)
+4. doPut изменения данных, полей, например e-mail. Можно менять только свой профайл(?). Передать новые значения полей.
+5. doDelete - Unregister!!! удаления себя из мапы session, userProfile
+Tools: Idea -> Tools -> The Restfull Web Service и/или https://chrome.google.com/webstore/detail/postman/
