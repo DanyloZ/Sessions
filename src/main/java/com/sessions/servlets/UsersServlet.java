@@ -28,7 +28,6 @@ public class UsersServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             String login = request.getParameter("login");
-        System.out.println(login);
             UserProfile userProfile = accountService.getUserByLogin(login);
             Gson gson = new Gson();
             String json = gson.toJson(userProfile);
@@ -41,18 +40,70 @@ public class UsersServlet extends HttpServlet {
     //sign up
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response) throws ServletException, IOException {
-        //todo:
+        String login = request.getParameter("login");
+        String pass = request.getParameter("pass");
+        String email = request.getParameter("email");
+        accountService.addNewUser(new UserProfile(login, pass, email));
+
+        UserProfile userProfile = accountService.getUserByLogin(login);
+        Gson gson = new Gson();
+        String json = gson.toJson(userProfile);
+        response.setContentType("text/html;charset=utf-8");
+        response.getWriter().println(json);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     //change profile
     public void doPut(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
-        //todo:
+        String sessionId = request.getSession().getId();
+
+        UserProfile profile = accountService.getUserBySessionId(sessionId);
+        if (profile == null) {
+            response.setContentType("text/html;charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            String login = request.getParameter("login") != null ? request.getParameter("login") : profile.getLogin();
+            String oldPass = request.getParameter("oldPass");
+            String newPass = request.getParameter("newPass") != null ? request.getParameter("newPass") : profile.getPass();
+            String email = request.getParameter("email") != null ? request.getParameter("email") : profile.getEmail();
+
+            if (!profile.getPass().equals(oldPass)) {
+                response.setContentType("text/html;charset=utf-8");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            UserProfile updatedProfile = new UserProfile(login, newPass, email);
+            accountService.addNewUser(updatedProfile);
+            accountService.addSession(sessionId, updatedProfile);
+
+            UserProfile userProfile = accountService.getUserByLogin(login);
+            Gson gson = new Gson();
+            String json = gson.toJson(userProfile);
+            response.setContentType("text/html;charset=utf-8");
+            response.getWriter().println(json);
+            response.setStatus(HttpServletResponse.SC_OK);
+        }
     }
 
     //unregister
     public void doDelete(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException, IOException {
-        //todo:
+        String sessionId = request.getSession().getId();
+        UserProfile profile = accountService.getUserBySessionId(sessionId);
+        if (profile == null) {
+            response.setContentType("text/html;charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+        String login = profile.getLogin();
+
+        accountService.deleteSession(sessionId);
+        accountService.deleteProfile(login);
+
+        response.setContentType("text/html;charset=utf-8");
+        response.getWriter().println("Bye bye");
+        response.setStatus(HttpServletResponse.SC_OK);
+        }
     }
 }

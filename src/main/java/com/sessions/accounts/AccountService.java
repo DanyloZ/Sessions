@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AccountService {
-    public final Map<String, UserProfile> loginToProfile;
+    private final Map<String, UserProfile> loginToProfile;
     private final Map<String, UserProfile> sessionIdToProfile;
 
     public AccountService() {
@@ -31,4 +31,6 @@ public class AccountService {
     public void deleteSession(String sessionId) {
         sessionIdToProfile.remove(sessionId);
     }
+
+    public void deleteProfile(String login) {loginToProfile.remove(login); }
 }
