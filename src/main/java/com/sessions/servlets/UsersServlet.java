@@ -28,6 +28,11 @@ public class UsersServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             String login = request.getParameter("login");
+            if (login == null) {
+                response.setContentType("text/html;charset=utf-8");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
             UserProfile userProfile = accountService.getUserByLogin(login);
             Gson gson = new Gson();
             String json = gson.toJson(userProfile);
@@ -43,11 +48,16 @@ public class UsersServlet extends HttpServlet {
         String login = request.getParameter("login");
         String pass = request.getParameter("pass");
         String email = request.getParameter("email");
-        accountService.addNewUser(new UserProfile(login, pass, email));
+        if (login == null || pass == null || email == null) {
+            response.setContentType("text/html;charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        UserProfile profile = new UserProfile(login, pass, email);
+        accountService.addNewUser(profile);
 
-        UserProfile userProfile = accountService.getUserByLogin(login);
         Gson gson = new Gson();
-        String json = gson.toJson(userProfile);
+        String json = gson.toJson(profile);
         response.setContentType("text/html;charset=utf-8");
         response.getWriter().println(json);
         response.setStatus(HttpServletResponse.SC_OK);
@@ -78,9 +88,8 @@ public class UsersServlet extends HttpServlet {
             accountService.addNewUser(updatedProfile);
             accountService.addSession(sessionId, updatedProfile);
 
-            UserProfile userProfile = accountService.getUserByLogin(login);
             Gson gson = new Gson();
-            String json = gson.toJson(userProfile);
+            String json = gson.toJson(updatedProfile);
             response.setContentType("text/html;charset=utf-8");
             response.getWriter().println(json);
             response.setStatus(HttpServletResponse.SC_OK);
